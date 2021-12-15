@@ -17,30 +17,16 @@ class CannonBall(Entity):
         self.mouse_x = mouse_x
         self.mouse_y = mouse_y
 
-        self.rediffX = self.mouse_x - self.x
-        self.rediffY = self.mouse_y - self.y
+        self.rediffX = self.mouse_x
+        self.rediffY = self.mouse_y
 
-        self.podiffX = math.fabs(self.mouse_x - self.x)
-        self.podiffY = math.fabs(self.mouse_y- self.y)
-
-        self.rad = math.atan2(self.podiffY, self.podiffX)
+        self.rad = math.atan(self.rediffY/ self.rediffX)
         destroy(self,delay= 10)
     def update(self):
-        cannonBallchangeX = math.cos(self.rad) * self.speed
-        cannonBallchangeY = math.sin(self.rad) * self.speed
-        if self.rediffX < 0 and self.rediffY < 0:
-            self.quater = 1
-
-        elif self.rediffX > 0 and self.rediffY < 0:
-            self.quater = 2
-            cannonBallchangeX = -cannonBallchangeX
-        elif self.rediffX > 0 and self.rediffY > 0:
-            self.quater = 3
-            cannonBallchangeX = -cannonBallchangeX
-            cannonBallchangeY = -cannonBallchangeY
-        elif self.rediffX < 0 and self.rediffY > 0:
-            self.quater = 4
-            cannonBallchangeY = -cannonBallchangeY
-        self.x -= cannonBallchangeX
-        self.y -= cannonBallchangeY
+        if self.rediffX < 0:
+            self.x -= math.cos(self.rad)*self.speed
+            self.y -= math.sin(self.rad)*self.speed
+        else:
+            self.x += math.cos(self.rad)*self.speed
+            self.y += math.sin(self.rad)*self.speed
     

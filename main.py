@@ -19,8 +19,9 @@ def input(key):
 
     if mouse.left:
         # Audio('audios/shot.wav').play()
-        CannonBall(player.x, player.y, mouse.x, mouse.y)
-        
+        if time.time() - player.reload > 1:
+            player.reload = time.time()
+            CannonBall(player.x, player.y, mouse.x, mouse.y)
 
 
 # display the background
