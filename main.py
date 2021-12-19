@@ -6,6 +6,8 @@ from random import randint
 from cannonball import CannonBall
 from player import Player
 from sea import Sea
+from minimap import MiniMap
+from network import Network
 from ursina.camera import Camera
 
 
@@ -22,13 +24,13 @@ def input(key):
         if time.time() - player.reload > 1:
             player.reload = time.time()
             CannonBall(player.x, player.y, mouse.x, mouse.y)
-
+    
 
 # display the background
 app = Ursina()
 player = Player(0,0)
 background = Sea()
-# camera add in player
+minimap = MiniMap(player, background)
 
 
 app.run()

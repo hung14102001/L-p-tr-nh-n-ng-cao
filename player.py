@@ -1,69 +1,103 @@
 import os
-from ursina import Entity, camera, collider, held_keys
+from ursina import Entity, camera, collider, held_keys, Vec2, Vec3, color
 import time
-
 class Player(Entity):
     def __init__(self, position_x, position_y):
 
         super().__init__(
-            model='quad',
+            model='cube',
             collider = 'box',
             texture=os.path.join("Ships", "ship (4).png"),
             x=position_x,
             y=position_y,
             rotation_z = 0,
-            level = 1,
-            team = 1,
             z=0,
             scale_x=1,
             scale_y=2,
         )
         self.speed = 0.1
         self.reload = time.time()
+        self.level = 1
+        self.team = 1
+
+        self.healthbar_pos = Vec2(0, -0.1)
+        self.healthbar_size = Vec2(0.2, 0.02)
+        self.healthbar_bg = Entity(
+            parent=camera.ui,
+            model="quad",
+            color= color.rgb(255, 0, 0),
+            position=self.healthbar_pos,
+            scale=self.healthbar_size
+        )
+        self.healthbar = Entity(
+            parent=camera.ui,
+            model="quad",
+            color=color.rgb(0, 255, 0),
+            position=self.healthbar_pos,
+            scale=self.healthbar_size
+        )
+        
+        self.health = 100
+        # self.death_message_shown = False
+
+        # self.gun = Entity(
+        #     parent=camera.ui,
+        #     position=Vec2(0.6, -0.45),
+        #     scale=Vec3(0.1, 0.2, 0.65),
+        #     rotation=Vec3(-20, -20, -5),
+        #     model="cube",
+        #     texture="white_cube",
+        #     color=color.color(0, 0, 0.4)
+        # )
         
     def update(self):
         angle = self.rotation_z
-        changeX = 0
-        changeY = 0
+        increaseX = 0
+        increaseY = 0
+        decreaseX = 0
+        decreaseY = 0
         if held_keys['up arrow'] or held_keys['w']:
-            changeY = self.speed
+            increaseY = self.speed
             angle = 180
     
         if held_keys['down arrow'] or held_keys['s']:
-            changeY = -self.speed
+            decreaseY = self.speed
             angle = 0
         if held_keys['left arrow'] or held_keys['a'] :
-            changeX = -self.speed
+            decreaseX = self.speed
             angle = 90
             if held_keys['up arrow'] or held_keys['w']:
                 angle = 135
-                changeX = -self.speed /1.414
-                changeY = self.speed /1.414
+                decreaseX = self.speed /1.414
+                increaseY = self.speed /1.414
             elif held_keys['down arrow'] or held_keys['s']:
                 angle = 45
-                changeX = -self.speed/1.414
-                changeY = -self.speed /1.414
+                decreaseX = self.speed /1.414
+                decreaseY = self.speed /1.414
 
         if held_keys['right arrow'] or held_keys['d'] :
-            changeX = self.speed
+            increaseX = self.speed
             angle = -90
             if held_keys['up arrow'] or held_keys['w']:
                 angle = -135
-                changeX = self.speed /1.414
-                changeY = self.speed /1.414
+                increaseX = self.speed /1.414
+                increaseY = self.speed /1.414
 
             elif held_keys['down arrow'] or held_keys['s']:
                 angle = -45
-                changeX = self.speed /1.414
-                changeY = -self.speed /1.414
+                increaseX = self.speed /1.414
+                decreaseY = self.speed /1.414
         
         self.rotation_z = angle
         
         camera.x = self.x
         camera.y = self.y
+        camera.z = -20
         hitinfo = self.intersects()
         if hitinfo:
-            changeX = 0
-            changeY = 0
-        self.x += changeX
-        self.y += changeY
+            increaseX = 0
+            increaseY = 0
+            decreaseX = 0
+            decreaseY = 0
+        self.x = self.x + increaseX - decreaseX
+        self.y = self.y + increaseY - decreaseY
