@@ -43,15 +43,23 @@ def disable(*argv):
 
 # Loading animations
 anim = Animation('loadAnim/load', loop=True, autoplay=True, duration=12)
-a = Animator(animations={'load': anim,
-                         'ready': Entity()}
+a = Animator(animations={'ready': Entity(),
+                         'load': anim}
              )
 
 # play-button clicked
+
+
 def submit():
     disable(btn, inp)
     txt.text = ''
-    #a.state = 'load'
+    a.state = 'load'
+    invoke(start, delay=1.5)
+
+
+# start play game
+def start():
+    a.state = 'ready'
     enable(player)
     background = Sea(True)
 
