@@ -93,11 +93,20 @@ class Player(Entity):
         camera.x = self.x
         camera.y = self.y
         camera.z = -20
+
         hitinfo = self.intersects()
-        if hitinfo:
-            increaseX = 0
-            increaseY = 0
-            decreaseX = 0
-            decreaseY = 0
+        if hitinfo.hit:          
+            x = hitinfo.point.x
+            y = hitinfo.point.y
+            if x == .5:
+                decreaseX = 0
+            if x == -.5:
+                increaseX = 0
+            if y == .5:
+                decreaseY = 0
+            if y == -.5:
+                increaseY = 0
+            
         self.x = self.x + increaseX - decreaseX
         self.y = self.y + increaseY - decreaseY
+            

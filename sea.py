@@ -13,7 +13,6 @@ class SeaPart(ursina.Entity):
             scale=2,
             model="quad",
             texture=os.path.join("Tiles", "tile_73.png")
-            # collider="box"
         )
         self.texture.filtering = None
 
@@ -21,7 +20,7 @@ class SoilPart(ursina.Entity):
     def __init__(self, position):
         super().__init__(
             position=position,
-            scale=2,
+            scale=1,
             model="quad",
             texture=os.path.join("Tiles", "tile_18.png"),
             collider="box"
@@ -41,7 +40,7 @@ class PlantPart(ursina.Entity):
     def __init__(self, position,img):
         super().__init__(
             position=position,
-            scale=3,
+            scale=1,
             model="quad",
             texture=img,
             # collider="box"
@@ -55,7 +54,7 @@ class Sea:
         for x in range(-30, 30, 2):
             for y in range(-30, 30, 2):
                 if x >= 20 or x <=-20 or y <= -20 or y >= 20:
-                    part = SoilPart(ursina.Vec3(x, y, 0.1))
+                    part = SoilPart(ursina.Vec3(x, y, 0))
         for x in range(0, 5):
             px = randint(-18, 18)
             py = randint(-18, 18)
@@ -97,6 +96,6 @@ class Sea:
             for i in range(0, 3):
                 px = randint(-17, 17)
                 py = randint(-17, 17)
-                part = IslandPart(ursina.Vec3(px+i, py, 0.05), self.tiles[70+i])
+                part = IslandPart(ursina.Vec3(px+i, py, 0), self.tiles[70+i])
             # for i in range(0, 5):
             #     part = IslandPart(ursina.Vec3(px+i, py-1, 0), self.tiles[55+i])

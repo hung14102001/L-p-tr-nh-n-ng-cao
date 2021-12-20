@@ -3,15 +3,16 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 class MiniMap(Entity):
     def __init__(self, player, sea):
         super().__init__(
-            scale=0.4,
+            scale=0.3,
             parent = camera.ui,
-            model="quad"
+            model="quad",
+            position=Vec2(0.74, 0.35)
             # parent = camera.ui,
             # collider="box"
         )
         
         self.minimap_size = Vec2(1, 1)
-        self.position = Vec2(0.7, 0.3)
+        # self.position = Vec2(0, 0)
         self.player_X = player.x
         self.player_Y = player.y
     def update(self):
