@@ -1,5 +1,8 @@
-import os, math
+import os
+import math
 from ursina import Entity, destroy, HotReloader
+
+
 class CannonBall(Entity):
     def __init__(self, player_x, player_y, mouse_x, mouse_y):
 
@@ -20,8 +23,9 @@ class CannonBall(Entity):
         self.rediffX = self.mouse_x
         self.rediffY = self.mouse_y
 
-        self.rad = math.atan(self.rediffY/ self.rediffX)
-        destroy(self,delay= 10)
+        self.rad = math.atan(self.rediffY / self.rediffX)
+        destroy(self, delay=10)
+
     def update(self):
         if self.rediffX < 0:
             self.x -= math.cos(self.rad)*self.speed
@@ -29,4 +33,3 @@ class CannonBall(Entity):
         else:
             self.x += math.cos(self.rad)*self.speed
             self.y += math.sin(self.rad)*self.speed
-    

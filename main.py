@@ -7,6 +7,8 @@ from cannonball import CannonBall
 from player import Player
 from sea import Sea
 from ursina.camera import Camera
+from intro import Text, Input, Button
+
 
 app = Ursina(boderless=False)
 
@@ -21,26 +23,37 @@ window.title = "Demo"
 window.color = color.rgb(167, 162, 193)
 
 
-# Introduction_Screen
-# create text
-txt = Text(text='WELCOME TO OUR WORLD !',
-           origin=(0, -5),
-           color=color.yellow,
-           scale=3)
-txt.appear(speed=.05, delay=0)
-
-# create play-button
-play_btn = Button(parent='player.py',
-                  text='', icon='Icon/play_icon.png',
-                  color=color.rgba(255, 255, 255, 0),
-                  scale=.2, position=(0, -.1))
-
 # Show/hide item on screen
-def pressed(item, is_enable):
-    if is_enable:
+def display(item, state):
+    if state:
         item.enable()
     else:
         item.disable()
+
+
+def enable(*argv):
+    for arg in argv:
+        display(arg, True)
+
+
+def disable(*argv):
+    for arg in argv:
+        display(arg, False)
+
+
+# Loading animations
+anim = Animation('loadAnim/load', loop=True, autoplay=True, duration=12)
+a = Animator(animations={'load': anim,
+                         'ready': Entity()}
+             )
+
+# play-button clicked
+def submit():
+    disable(btn, inp)
+    txt.text = ''
+    #a.state = 'load'
+    enable(player)
+    background = Sea(True)
 
 
 # from ursina import texture
@@ -59,25 +72,22 @@ def input(key):
 
             # Show/hide cannon by player
             if player.enabled:
-                pressed(canno, True)
+                display(canno, True)
             else:
-                pressed(canno, False)
+                display(canno, False)
 
 
-# play_btn clicked
-def btn_Clicked():
-    pressed(play_btn, False)
-    pressed(player, True)
-    background = Sea(1)
-    txt.text = ''
+# Introduction
+txt = Text()
+inp = Input()
+btn = Button()
 
-
-# display the background
 player = Player(0, 0)
-background = Sea(0)
-# camera add in player
+background = Sea(False)
 
-pressed(player, False)
-play_btn.on_click = btn_Clicked
+disable(player)
+a.state = 'ready'
+btn.on_click = submit
+
 
 app.run()
