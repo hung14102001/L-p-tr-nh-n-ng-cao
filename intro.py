@@ -24,7 +24,7 @@ class Button(Button):
         super().__init__(
             position=(0, -.1),
             scale=.2,
-            icon='Icon/play_icon.png',
+            icon='Image/play_icon.png',
             color=color.rgba(255, 255, 255, 0),
         )
         

@@ -20,7 +20,7 @@ window.fullscreen = False
 
 # Title and background
 window.title = "Demo"
-window.color = color.rgb(167, 162, 193)
+Sprite('Image/background.png')
 
 
 # Show/hide item on screen
@@ -48,8 +48,6 @@ a = Animator(animations={'ready': Entity(),
              )
 
 # play-button clicked
-
-
 def submit():
     disable(btn, inp)
     txt.text = ''
