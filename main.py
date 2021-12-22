@@ -9,7 +9,7 @@ from sea import Sea
 from minimap import MiniMap
 # from network import Network
 from ursina.camera import Camera
-
+from enemy import Enemy
 
 # from ursina import texture
 
@@ -29,8 +29,9 @@ def input(key):
 # display the background
 app = Ursina()
 player = Player(0,0)
-background = Sea()  
+background = Sea()
 minimap = MiniMap(player, background)
-
+# camera.z = -100
+Enemy(Vec2(5,5), '1111', '234', './Ships/ship (4).png')
 
 app.run()

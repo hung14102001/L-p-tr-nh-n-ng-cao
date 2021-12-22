@@ -1,26 +1,23 @@
-from ursina import camera, Entity, Vec2, Vec3, color, texture, EditorCamera, BoxCollider
-from ursina.prefabs.first_person_controller import FirstPersonController
+from ursina import camera, Entity, Vec2, color
 class MiniMap(Entity):
     def __init__(self, player, sea):
         super().__init__(
             scale=0.3,
-            parent = camera.ui,
+            parent=camera.ui,
             model="quad",
-            position=Vec2(0.74, 0.35)
-            # parent = camera.ui,
-            # collider="box"
+            position=Vec2(0.74, 0.35),
+            color=color.rgb(161, 234, 255)
         )
+
+        self.player = player
         
-        self.minimap_size = Vec2(1, 1)
-        # self.position = Vec2(0, 0)
-        self.player_X = player.x
-        self.player_Y = player.y
+        self.playerRep = Entity(
+            parent=self,
+            scale=.05,
+            model='circle',
+            position=(player.x/40,player.y/40),
+            color=color.rgb(0,0,0)
+        )
     def update(self):
-        # ec = EditorCamera(rotation_smoothing=2, enabled=1, position=Vec3(self.player_X, self.player_Y, -10))
-        camera.minimapX = self.player_X
-        camera.minimapY = self.player_Y
-        camera.minimapZ = -50
-        # put camera in minimap
-        # self.texture = ec
-        # self.texture = texture.Texture(ec)
-        
+        self.playerRep.x = self.player.x/40
+        self.playerRep.y = self.player.y/40

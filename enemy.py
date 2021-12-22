@@ -1,7 +1,7 @@
 from ursina import Entity, Vec3, Vec2, color, collider, destroy
 
-class enemy(Entity):
-    def __init__(self, position: Vec3, identifier: str, username: str, img_path: str):
+class Enemy(Entity):
+    def __init__(self, position: Vec2, identifier: str, username: str, img_path: str):
         super().__init__(
             position=position,
             model="cube",
@@ -9,7 +9,6 @@ class enemy(Entity):
             texture=img_path,
             scale=Vec3(1, 2, 0)
         )
-
 
         self.name_tag = Entity(
             parent=self,
@@ -20,17 +19,19 @@ class enemy(Entity):
             origin=Vec2(0, 0)
         )
 
+        self.healthbar = Entity(
+            parent=self,
+            model="quad",
+            position=Vec3(0, -.3, -1),
+            color=color.rgb(0, 255, 0),
+            scale=Vec2(1.5,.1)
+        )
+
+        self.maxHealth = 100
         self.health = 100
         self.id = identifier
         self.username = username
     def update(self):
-        try:
-            color_saturation = 1 - self.health / 100
-        except AttributeError:
-            self.health = 100
-            color_saturation = 1 - self.health / 100
-
-        self.color = color.color(0, color_saturation, 1)
-
+        self.healthbar.scale_x = self.health / self.maxHealth * 1.5
         if self.health <= 0:
             destroy(self)

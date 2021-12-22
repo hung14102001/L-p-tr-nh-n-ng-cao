@@ -1,6 +1,7 @@
 import os
 import ursina
 from random import randint
+import time
 
 from ursina import collider    
 
@@ -44,7 +45,36 @@ class PlantPart(ursina.Entity):
             model="quad",
             texture=img,
             # collider="box"
-        )     
+        )
+
+
+class Restrictor(ursina.Entity):
+    def __init__(self):
+        super().__init__(
+            model=ursina.Circle(resolution=50, mode='line'),
+            scale=(30,30),
+            color=ursina.color.rgb(0,0,0)
+        )
+        self.countDown = time.time() + 5
+        self.restricting = False
+
+    def update(self):
+        if self.restricting:
+            self.scale_x -= ursina.time.dt
+            self.scale_y -= ursina.time.dt
+
+            if self.scale_x <= 0:
+                ursina.destroy(self)
+
+            elif time.time() > self.countDown:
+                self.countDown += 5
+                self.restricting = False
+
+        elif time.time() > self.countDown:
+            self.countDown += 5
+            self.restricting = True
+
+
 class Sea:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]    
     def __init__(self):
@@ -99,3 +129,5 @@ class Sea:
                 part = IslandPart(ursina.Vec3(px+i, py, 0), self.tiles[70+i])
             # for i in range(0, 5):
             #     part = IslandPart(ursina.Vec3(px+i, py-1, 0), self.tiles[55+i])
+
+        Restrictor()
