@@ -32,6 +32,6 @@ player = Player(0,0)
 background = Sea()
 minimap = MiniMap(player, background)
 # camera.z = -100
-Enemy(Vec2(5,5), '1111', '234', './Ships/ship (4).png')
+Enemy(Vec2(5,5), '1111', '234', './Ships/ship_4.png')
 
 app.run()
