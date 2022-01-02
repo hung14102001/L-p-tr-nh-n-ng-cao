@@ -1,6 +1,6 @@
 import os
 import ursina
-from random import randint    
+from random import randint
 
 
 class SeaPart(ursina.Entity):
@@ -14,6 +14,7 @@ class SeaPart(ursina.Entity):
         )
         self.texture.filtering = None
 
+
 class SoilPart(ursina.Entity):
     def __init__(self, position):
         super().__init__(
@@ -24,6 +25,8 @@ class SoilPart(ursina.Entity):
             collider="box"
         )
         self.texture.filtering = None
+
+
 class IslandPart(ursina.Entity):
     def __init__(self, position):
         super().__init__(
@@ -35,16 +38,28 @@ class IslandPart(ursina.Entity):
         )
         self.texture.filtering = None
 
-class Sea:
-    def __init__(self):
+
+class Sea():
+    def __init__(self, k):
         for x in range(-20, 20, 2):
             for y in range(-20, 20, 2):
                 part = SeaPart(ursina.Vec3(x, y, 0.1))
+                self.display(part, k)
         for x in range(-30, 30, 2):
             for y in range(-30, 30, 2):
-                if x >= 20 or x <=-20 or y <= -20 or y >= 20:
+                if x >= 20 or x <= -20 or y <= -20 or y >= 20:
                     part = SoilPart(ursina.Vec3(x, y, 0.1))
+                    self.display(part, k)
+
         for x in range(0, 20):
             px = randint(-18, 18)
             py = randint(-18, 18)
             part = IslandPart(ursina.Vec3(px, py, 0))
+            self.display(part, k)
+
+    # Show/hide background
+    def display(self, item, state):
+        if state:
+            item.enable()
+        else:
+            item.disable()
