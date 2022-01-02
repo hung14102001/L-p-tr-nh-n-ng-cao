@@ -15,6 +15,7 @@ class Player(Entity):
             z=0,
             scale_x=1,
             scale_y=2,
+            visible = False
             # text = Text(text="Score: " + str(score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0)),
         )
         self.speed = 0.15

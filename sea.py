@@ -139,14 +139,16 @@ class Restrictor(ursina.Entity):
 
 class Sea:
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]    
-    def __init__(self):
+    def __init__(self,k):
         for x in range(-20, 20, 2):
             for y in range(-20, 20, 2):
                 part = SeaPart(ursina.Vec3(x, y, 0.1))
+                self.display(part, k)
         for x in range(-30, 30, 2):
             for y in range(-30, 30, 2):
                 if x >= 20 or x <=-20 or y <= -20 or y >= 20:
                     part = SoilPart(ursina.Vec3(x, y, 0))
+                    self.display(part, k)
         # dọc dưới
         island = Island2x2(-0.5, -15.5)
         island = Island2x2(-0.5, -17.5)
@@ -178,7 +180,16 @@ class Sea:
         island = Island4x4(-8.5,8.5)
         island = Island4x4(5.5,-5.5)
         island = Island4x4(5.5,8.5)
+       
+
 
         # đá 
         # island = IslandPart(ursina.Vec3(0,0,0), self.tiles[0])
         Restrictor()
+
+        # Show/hide background
+    def display(self, item, state):
+        if state:
+            item.enable()
+        else:
+            item.disable()
