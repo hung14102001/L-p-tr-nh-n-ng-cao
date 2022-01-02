@@ -9,8 +9,8 @@ class SeaPart(ursina.Entity):
             position=position,
             scale=2,
             model="quad",
-            texture=os.path.join("Tiles", "tile_73.png"),
-            collider="box"
+            texture = os.path.join("Tiles", "tile_73.png"),
+            collider = "box"
         )
         self.texture.filtering = None
 

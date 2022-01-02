@@ -2,21 +2,22 @@ import os
 from ursina import Entity, camera, collider, held_keys
 import time
 
-class Player(Entity):
-    def __init__(self, position_x, position_y):
+class Player(Entity,):
+    def __init__(self,position_x, position_y):
 
         super().__init__(
-            model='quad',
+            model = 'quad',
             collider = 'box',
-            texture=os.path.join("Ships", "ship (4).png"),
-            x=position_x,
-            y=position_y,
+            texture = os.path.join("Ships", "ship (4).png"),
+            x = position_x,
+            y = position_y,
             rotation_z = 0,
             level = 1,
             team = 1,
-            z=0,
-            scale_x=1,
-            scale_y=2,
+            z = 0,
+            scale_x = 1,
+            scale_y = 2,
+            visible = False
         )
         self.speed = 0.1
         self.reload = time.time()
