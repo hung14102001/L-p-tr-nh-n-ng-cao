@@ -10,26 +10,25 @@ from ursina.camera import Camera
 from intro import Text, Input, Button
 
 
-app = Ursina(boderless=False)
+app = Ursina()
 
 # Custom window
-window.exit_button.enabled = True
-window.cog_button.enabled = False
+window.borderless = False               # Show a border
+window.fullscreen = False               # Do not go Fullscreen
+window.exit_button.visible = False      # Do not show the in-game red X that loses the window 
 window.fps_counter.enabled = False
-window.fullscreen = False
 
-# Title and background
-window.title = "Demo"
-Sprite('Image/background.png')
+window.title = 'My Game'                # The window title
+bg = Sprite('Image/background.png')
 
+Text.default_font = 'Font/aAbstractGroovy.ttf'
+Text.size = 0.1
 
-# Show/hide item on screen
-def display(item, state):
+def display(item, state):               # Show/hide item on screen
     if state:
         item.enable()
     else:
         item.disable()
-
 
 def enable(*argv):
     for arg in argv:
@@ -41,34 +40,30 @@ def disable(*argv):
         display(arg, False)
 
 
-# Loading animations
-anim = Animation('loadAnim/load', loop=True, autoplay=True, duration=12)
+anim = Animation('loadAnim/load', loop=True)    # Loading animations
 a = Animator(animations={'ready': Entity(),
                          'load': anim}
              )
 
-# play-button clicked
-def submit():
-    disable(btn, inp)
-    txt.text = ''
+def submit():                                   # Play-button clicked
+    disable(btn, inp, bg)
+    txt.visible = False
     a.state = 'load'
-    invoke(start, delay=1.5)
+    invoke(start, delay=1.2)
+    
 
-
-# start play game
-def start():
+def start():                                    # Start play game
     a.state = 'ready'
     enable(player)
     background = Sea(True)
 
 
 # from ursina import texture
-# input
-def input(key):
+def input(key):                                 # input
     if key == 'esc':
         app.running = False
+        
     # move left if hold arrow left
-
     if mouse.left:
         # Audio('audios/shot.wav').play()
         if time.time() - player.reload > 1:
@@ -92,7 +87,6 @@ player = Player(0, 0)
 background = Sea(False)
 
 disable(player)
-a.state = 'ready'
 btn.on_click = submit
 
 
