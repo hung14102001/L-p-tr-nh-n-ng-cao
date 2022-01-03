@@ -15,11 +15,12 @@ class MiniMap(Entity):
         green = color.rgb(0, 255, 0)
         bistre = color.rgb(205, 133, 63)
         goldenbrown = color.rgb(205, 133, 63)
+        
         self.playerRep = Entity(
             parent=self,
             scale=.05,
             model='circle',
-            position=(player.x/40,player.y/40),
+            position=(player.x/40, player.y/40),
             color=red
         )
         self.boRep = Entity(
@@ -104,6 +105,8 @@ class MiniMap(Entity):
             position=(0,0,-0.1),
             color=green
         )
+    
     def update(self):
         self.playerRep.x = self.player.x/40
         self.playerRep.y = self.player.y/40
+    
