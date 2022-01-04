@@ -39,7 +39,7 @@ class Player(Entity):
         )
         
         self.health = 100
-        text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
         
     def update(self):
         angle = self.rotation_z

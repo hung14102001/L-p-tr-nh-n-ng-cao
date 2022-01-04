@@ -1,42 +1,64 @@
-from ursina import *
-from map import OpenMap
+import os
 
+from ursina import *
+from re import A, escape
+from random import randint
+from cannonball import CannonBall
+from player import Player
+from sea import Sea, Plant, Coin
+from minimap import MiniMap
+from ursina.camera import Camera
 from direct.stdpy import thread
 from ursina.prefabs.health_bar import HealthBar
+from enemy import Enemy
 
 class Title(Text):
     def __init__(self):
         super().__init__(
-            text='WELCOME TO OUR WORLD !',origin=(0, -5),color=color.black,
-            scale=3, font='Font/aAbstractGroovy.ttf',
+            text='WELCOME TO OUR WORLD !',
+            origin=(0, -4),
+            color=color.black,
+            size=Text.size,
+            font='Font/aAbstractGroovy.ttf',
         )
-        self.appear(speed=.08, delay=0)
+        self.appear(speed=.05, delay=0)
 
 
 class InputName(InputField):
     def __init__(self):
-        super().__init__(x=0, y=.05,)
-        self.tooltip = Tooltip('Nhap ten cua ban', scale=1)
-        
-        
+        super().__init__(x=.5, y=0,)
+        self.tooltip = Tooltip('Nhap ten cua ban')
+
+
 class LoadingWheel(Entity):
     def __init__(self, **kwargs):
         super().__init__()
         self.parent = camera.ui
         self.point = Entity(parent=self, 
                             model=Circle(24, mode='point', thickness=.03), 
-                            color=color.light_gray, y=.5, scale=3, texture='circle')
+                            color=color.light_gray, 
+                            y=.75, 
+                            scale=2, 
+                            texture='circle')
         self.point2 = Entity(parent=self, 
                              model=Circle(12, mode='point', thickness=.03), 
-                             color=color.light_gray, y=.5, scale=1.5, texture='circle')
+                             color=color.light_gray, 
+                             y=.75, 
+                             scale=1, 
+                             texture='circle')
 
         self.scale = .025
-        self.text_entity = Text(world_parent=self, text='Loading...', 
-                                origin=(0,2.5), color=color.light_gray)
+        self.text_entity = Text(world_parent=self, 
+                                text='Loading...', 
+                                origin=(0, 0), 
+                                color=color.light_gray)
         self.y = -.25
 
-        self.bg = Entity(parent=self, model='quad',scale_x=camera.aspect_ratio, 
-                         color=color.black, z=1)
+        self.bg = Entity(parent=self, 
+                         model='quad',
+                         scale_x=camera.aspect_ratio, 
+                         color=color.black, 
+                         z=1)
         self.bg.scale *= 400
 
         for key, value in kwargs.items():
@@ -46,10 +68,39 @@ class LoadingWheel(Entity):
         self.point.rotation_y += 5
         self.point2.rotation_y += 3
 
+class OpenMap(Entity):
+    def __init__(self,**kwargs):
+        super().__init__(
+            parent=camera.ui
+        )
+        self.player = Player(-15, -15)
+        self.background = Sea()
+        self.coin = Coin()
+        self.plant = Plant()
+        self.minimap=MiniMap(self.player, self.background)
+        # camera.z = -100
+        Enemy(Vec2(5,5), '1111', '234', './Ships/ship_5.png')
 
+        # from ursina import texture
+
+    def input(self,key):                                 # input
+        if key == 'esc':
+            app.running = False
+
+        # move left if hold arrow left
+        if mouse.left:
+            # Audio('audios/shot.wav').play()
+            if time.time() - self.player.reload > 1:
+                self.player.reload = time.time()
+                #CannonBall(player.x, player.y, mouse.x, mouse.y)
+                self.canno = CannonBall(self.player, self.player.x, self.player.y, mouse.x, mouse.y)
+                
+                
 class MainMenu(Entity):
     def __init__(self, **kwargs):
-        super().__init__(parent=camera.ui, ignore_paused=True
+        super().__init__(
+            parent=camera.ui, 
+            ignore_paused=True
         )
 
         # Create empty entities that will be parents of our menus content
@@ -57,10 +108,8 @@ class MainMenu(Entity):
         self.options_menu = Entity(parent=self, visible=False)
 
         self.title = Title()
-        self.player_name = InputName()
+        #self.player_name = InputName()
         self.loading_screen = LoadingWheel(visible=False)
-
-        
         
 
         # Add a background
@@ -83,9 +132,7 @@ class MainMenu(Entity):
 
         def loadTextures():
             textures_to_load = ['brick', 'shore', 'grass', 'heightmap'] * 25
-            bar = HealthBar(max_value=len(textures_to_load), value=0, 
-                            position=(-.5,-.35,-2), scale_x=1, bar_color=color.gray,
-                            animation_duration=0, world_parent=self.loading_screen )
+            bar = HealthBar(max_value=len(textures_to_load), value=0, position=(-.5,-.35,-2), scale_x=1, animation_duration=0, world_parent=self.loading_screen, bar_color=color.gray)
             for i, t in enumerate(textures_to_load):
                 load_texture(t)
                 print(i)
@@ -94,10 +141,12 @@ class MainMenu(Entity):
             print('loaded textures')
             hide(self.loading_screen)
             OpenMap()
+            #show(self.player)
+            #self.background = Sea(True)
 
         # Reference of our action function for play button
         def play_btn():
-            hide(self.title, self.player_name, self.bg, self.main_menu)
+            hide(self.title, self.bg, self.main_menu)
             show(self.loading_screen)
             t = time.time()
 
@@ -110,7 +159,7 @@ class MainMenu(Entity):
 
         # Reference of our action function for options button
         def options_menu_btn():
-            hide(self.title, self.player_name, self.main_menu)
+            hide(self.title, self.main_menu)
             show(self.options_menu)
 
         # Reference of our action function for quit button
@@ -125,6 +174,7 @@ class MainMenu(Entity):
         }, y=0, parent=self.main_menu)
         # [MAIN MENU] WINDOW END
 
+
         # [OPTIONS MENU] WINDOW START
         # Title of our menu
         Text("OPTIONS MENU", parent=self.options_menu, y=0.4, x=0, origin=(0, 0))
@@ -135,9 +185,8 @@ class MainMenu(Entity):
             hide(self.options_menu)
 
         # Button
-        Button("Back", parent=self.options_menu, y=-0.3, scale=(0.1, 0.05), 
-                       color=rgb(50, 50, 50),
-                       on_click=options_back_btn_action)
+        Button("Back", parent=self.options_menu, y=-0.3, scale=(0.1, 0.05), color=rgb(50, 50, 50),
+               on_click=options_back_btn_action)
 
         # [OPTIONS MENU] WINDOW END
 
