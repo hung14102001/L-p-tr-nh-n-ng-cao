@@ -36,11 +36,12 @@ class Network:
         self.id = self.client.recv(self.recv_size).decode("utf8")
 
         self.client.send(json.dumps(self.info).encode("utf8"))
-        self.initPosition = self.client.recv(self.recv_size).decode("utf8")
+        initPosition = self.client.recv(self.recv_size).decode("utf8")
+        self.initPosition = json.loads(initPosition)
 
     def getInitPosition(self):
-        x = float(self.initPosition.split()[0])
-        y = float(self.initPosition.split()[1])
+        x = float(self.initPosition[0])
+        y = float(self.initPosition[1])
         return (x, y)
 
     def receive_info(self):

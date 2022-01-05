@@ -10,37 +10,41 @@ import threading
 
 # ADDR = "127."
 PORT = 8000
-MAX_PLAYERS = 3
+MAX_MATCHES = 3
+MAX_PLAYERS = 2
 MSG_SIZE = 2048
 
 # Setup server socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((socket.gethostname(), PORT))
-s.listen(MAX_PLAYERS)
+s.listen(MAX_PLAYERS*MAX_MATCHES)
 
+matches = {}
 players = {}
 
 
-def generate_id(player_list: dict, max_players: int):
+
+def generate_id(_list: dict, _max: int):
     """
     Generate a unique identifier
 
     Args:
-        player_list (dict): dictionary of existing players
-        max_players (int): maximum number of players allowed
+        _list (dict): dictionary of existing players/matches
+        _max (int): maximum number of players/matches allowed
 
     Returns:
         str: the unique identifier
     """
 
     while True:
-        unique_id = str(random.randint(1, max_players))
-        if unique_id not in player_list:
+        unique_id = str(random.randint(1, _max))
+        if unique_id not in _list:
             return unique_id
 
 
-def handle_messages(identifier: str):
-    client_info = players[identifier]
+def handle_messages(match_id: str, player_id: int):
+    players = matches[match_id]['players']
+    client_info = players[player_id]
     conn: socket.socket = client_info["socket"]
     username = client_info["username"]
 
@@ -61,39 +65,38 @@ def handle_messages(identifier: str):
             print(e)
             continue
 
-        print(f"Received message from player {username} with ID {identifier}")
+        print(f"Received message from player {username} with ID {player_id}")
 
         if msg_json["object"] == "player":
-            players[identifier]["position"] = msg_json["position"]
-            players[identifier]["direction"] = msg_json["direction"]
-            players[identifier]["health"] = msg_json["health"]
+            players[player_id]["position"] = msg_json["position"]
+            players[player_id]["direction"] = msg_json["direction"]
+            players[player_id]["health"] = msg_json["health"]
 
         # Tell other players about player moving
-        for player_id in players:
-            if player_id != identifier:
-                player_info = players[player_id]
+        for p_id in players:
+            if p_id != player_id:
+                player_info = players[p_id]
                 player_conn: socket.socket = player_info["socket"]
-                print(msg_json['object'])
                 try:
                     player_conn.sendall(msg_decoded.encode("utf8"))
                 except OSError:
                     pass
 
     # Tell other players about player leaving
-    for player_id in players:
-        if player_id != identifier:
-            player_info = players[player_id]
+    for p_id in players:
+        if p_id != player_id:
+            player_info = players[p_id]
             player_conn: socket.socket = player_info["socket"]
             try:
-                player_conn.send(json.dumps({"id": identifier, "object": "player", "joined": False, "left": True}).encode("utf8"))
+                player_conn.send(json.dumps({"id": player_id, "object": "player", "joined": False, "left": True}).encode("utf8"))
             except OSError:
                 pass
 
-    print(f"Player {username} with ID {identifier} has left the game...")
-    del players[identifier]
+    print(f"Player {username} with ID {player_id} has left the game...")
+    del players[player_id]
     conn.close()
 
-def initPlayerInfo(info: str):
+def initPlayerInfo(new_player_id, info: str):
     msg_json={}
     try:
         msg_json = json.loads(info)
@@ -113,22 +116,44 @@ def initPlayerInfo(info: str):
     #         y = random.randint(-19, 19)
 
     position = (x, y)
+    res = {
+        'player_id': new_player_id,
+        'username': usrname, 
+        'position': position, 
+        'health': heath, 
+        'damage': damage, 
+        'ship': ship,
+    }
 
-    return {'username': usrname, 'position': position, 'health': heath, 'damage': damage, 'ship': ship}
+    return res
 
 
 def main():
     print("Server started, listening for new connections...")
 
     while True:
-        # Accept new connection and assign unique ID
+        # Accept new connection and assign match ID and unique ID
         conn, addr = s.accept()
-        new_id = generate_id(players, MAX_PLAYERS)
-        conn.send(new_id.encode("utf8"))
+        assigned = False
+        new_match_id = -1
+
+        for m in matches:
+            if len(matches[m]['players']) < MAX_PLAYERS:
+                new_match_id = m
+                new_player_id = generate_id(matches[m]['players'], MAX_PLAYERS)
+                assigned = True
+
+        if not assigned:
+            new_match_id = generate_id(matches, MAX_MATCHES)
+            new_player_id = str(random.randint(1, MAX_PLAYERS))
+            assigned = True
+
+        print('m',new_match_id)
+        print('p', new_player_id)
+        conn.send(new_player_id.encode("utf8"))
         recv_info = conn.recv(MSG_SIZE).decode("utf8")
 
-
-        init_info = initPlayerInfo(recv_info)
+        init_info = initPlayerInfo(new_player_id, recv_info)
 
         new_player_info = {
             "socket": conn, 
@@ -139,20 +164,29 @@ def main():
             "damage": init_info['damage'],
             "ship": init_info['ship'],
         }
-        conn.send(
-            (str(new_player_info['position'][0]) + ' ' +
-                str(new_player_info['position'][1]))
-            .encode('utf8'))
+        conn.send(json.dumps(new_player_info['position']).encode('utf8'))
+
+        # Add new player to players list, effectively allowing it to receive messages from other players
+        if new_match_id not in matches:
+            matches[new_match_id] = {
+                'ended': False,
+                'restrictor': time.time(),
+                'players': {}
+            }
+        
+        matches[new_match_id]['players'][new_player_id] = new_player_info
 
         # Tell existing players about new player
+        players = matches[new_match_id]['players']
+        
         for player_id in players:
-            if player_id != new_id:
+            if player_id != new_player_id:
                 player_info = players[player_id]
                 player_conn: socket.socket = player_info["socket"]
 
                 try:
                     player_conn.send(json.dumps({
-                        "id": new_id,
+                        "id": new_player_id,
                         "object": "player",
                         "username": new_player_info["username"],
                         "position": new_player_info["position"],
@@ -167,7 +201,7 @@ def main():
 
         # Tell new player about existing players
         for player_id in players:
-            if player_id != new_id:
+            if player_id != new_player_id:
                 player_info = players[player_id]
                 try:
                     conn.send(json.dumps({
@@ -185,14 +219,12 @@ def main():
                 except OSError:
                     pass
 
-        # Add new player to players list, effectively allowing it to receive messages from other players
-        players[new_id] = new_player_info
 
         # Start thread to receive messages from client
-        msg_thread = threading.Thread(target=handle_messages, args=(new_id,), daemon=True)
+        msg_thread = threading.Thread(target=handle_messages, args=(new_match_id, new_player_id,), daemon=True)
         msg_thread.start()
 
-        print(f"New connection from {addr}, assigned ID: {new_id}...")
+        print(f"New connection from {addr}, assigned ID: {new_match_id, new_player_id}...")
 
 
 if __name__ == "__main__":
