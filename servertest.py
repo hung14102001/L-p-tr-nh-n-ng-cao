@@ -19,7 +19,7 @@ def input(key):
         app.running = False
     # move left if hold arrow left
 
-    if mouse.left:
+    if mouse.left and player.health > 0:
         # Audio('audios/shot.wav').play()
         if time.time() - player.reload > 1:
             player.reload = time.time()
@@ -54,6 +54,7 @@ while can_continue:
 		n.settimeout(None)
 
 enemies = []
+scores = []
 
 def protocol():
 
@@ -68,7 +69,14 @@ def protocol():
             print("Server has stopped! Exiting...")
             sys.exit()
 
-        if info["object"] == "player":
+        if type(info) == list:
+            for i in info:
+                enemy_id = i["id"]
+                if i["joined"]:
+                    new_enemy = Enemy(i)
+                    enemies.append(new_enemy)
+
+        elif info["object"] == "player":
             enemy_id = info["id"]
 
             if info["joined"]:
@@ -124,9 +132,30 @@ def protocol():
                 continue
 
             enemy.health = info["health"]
-            print(enemy_id, enemy.health)
-            print(player.health)
 
+        elif info['object'] == 'score':
+            print('scoreeeeeeeee')
+            enemy_id = info["id"]
+
+            enemy = None
+
+            if enemy_id == n.id:
+                enemy = player
+            else:
+                for e in enemies:
+                    if e.id == enemy_id:
+                        enemy = e
+                        break
+
+            if not enemy:
+                continue
+
+            scores.append((info['id'], info['score']))
+
+
+        elif info['object'] == 'end_game':
+            scores.append(('player', player.score))
+            print(scores)
 
 def update():
 
@@ -138,6 +167,11 @@ def update():
 
         prev_pos = player.world_position
         prev_dir = player.world_rotation_z
+
+    elif not player.death_shown:
+        n.send_player(player)
+        n.send_score(player)
+        player.death_shown = True
 
 player = Player(Vec2(*(n.getInitPosition())))
 

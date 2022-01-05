@@ -15,7 +15,7 @@ class Enemy(Entity):
         self.name_tag = Entity(
             parent=self,
             text=info['username'],
-            position=Vec3(0, 1.3, 0),
+            position=Vec3(0, 1.3, -1),
             scale=Vec2(5, 3),
             billboard=True,
             origin=Vec2(0, 0)
@@ -31,7 +31,6 @@ class Enemy(Entity):
 
         self.maxHealth = 100
         self.health = float(info['health'])
-        print(self.health)
         self.id = info['id']
 
     def update(self):

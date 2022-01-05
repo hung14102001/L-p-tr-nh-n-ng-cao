@@ -39,6 +39,9 @@ class Network:
         initPosition = self.client.recv(self.recv_size).decode("utf8")
         self.initPosition = json.loads(initPosition)
 
+        coinPosition = self.client.recv(self.recv_size).decode('utf8')
+        self.coinPosition = json.loads(coinPosition)
+
     def getInitPosition(self):
         x = float(self.initPosition[0])
         y = float(self.initPosition[1])
@@ -46,22 +49,23 @@ class Network:
 
     def receive_info(self):
         try:
+
             msg = self.client.recv(self.recv_size)
         except socket.error as e:
-            print(e)
+            print('Extraaaa\n\n\n', e)
 
         if not msg:
             return None
 
         msg_decoded = msg.decode("utf8")
 
-        # left_bracket_index = msg_decoded.index("{")
-        # right_bracket_index = msg_decoded.index("}") + 1
-        # msg_decoded = msg_decoded[left_bracket_index:right_bracket_index]
+        msg_json = [json.loads(e + '}') for e in msg_decoded.split('}')[:-1]]
 
-        msg_json = json.loads(msg_decoded)
-
-        return msg_json
+        # msg_json = [json.loads(e) for e in temp]
+        if len(msg_json) > 1:
+            print('1111111111111111')
+            return msg_json
+        return msg_json[0]
 
     def send_player(self, player: Player):
         player_info = {
@@ -93,20 +97,37 @@ class Network:
         cannon_ball_info_encoded = json.dumps(cannon_ball_info).encode("utf8")
 
         try:
-            self.client.send(cannon_ball_info_encoded)
+            self.client.sendall(cannon_ball_info_encoded)
         except socket.error as e:
             print(e)
 
-    def send_health(self, player: Enemy):
+    def send_health(self, enemy: Enemy):
         health_info = {
             "object": "health_update",
-            "id": player.id,
-            "health": player.health
+            "id": enemy.id,
+            "health": enemy.health
         }
 
         health_info_encoded = json.dumps(health_info).encode("utf8")
 
         try:
-            self.client.send(health_info_encoded)
+            self.client.sendall(health_info_encoded)
         except socket.error as e:
             print(e)
+
+    def send_score(self, player: Player):
+        score = {
+            'object': 'score',
+            'id': self.id,
+            'score': player.score,
+        }
+        score_info_encoded = json.dumps(score).encode('utf8')
+
+        try:
+            print(self.id, 'send score')
+            self.client.send(score_info_encoded)
+        except socket.error as e:
+            print(e)
+
+    def close(self):
+        self.client.close()

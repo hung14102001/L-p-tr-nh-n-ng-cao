@@ -88,10 +88,11 @@ class CoinPart(ursina.Entity):
 class Coin:
     coin = os.path.join("Coins", "coin.png")
     def __init__(self):
-        for x in range(0,50):
-            px = randint(-20, 20)
-            py = randint(-20, 20)
-            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
+        # for x in range(0,50):
+        #     px = randint(-20, 20)
+        #     py = randint(-20, 20)
+        #     part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
+        pass
     # text = ursina.Text(text="Score: " +str(score), color=ursina.color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
     
 class Plant:
