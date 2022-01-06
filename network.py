@@ -60,12 +60,8 @@ class Network:
         msg_decoded = msg.decode("utf8")
 
         msg_json = [json.loads(e + '}') for e in msg_decoded.split('}')[:-1]]
-
-        # msg_json = [json.loads(e) for e in temp]
-        if len(msg_json) > 1:
-            print('1111111111111111')
-            return msg_json
-        return msg_json[0]
+        
+        return msg_json
 
     def send_player(self, player: Player):
         player_info = {
@@ -124,10 +120,22 @@ class Network:
         score_info_encoded = json.dumps(score).encode('utf8')
 
         try:
-            print(self.id, 'send score')
             self.client.send(score_info_encoded)
         except socket.error as e:
             print(e)
+
+    def send_coin(self, coin_id):
+        coin = {
+            'object': 'coin',
+            'id': coin_id,
+        }
+        coin_info_encoded = json.dumps(coin).encode('utf8')
+
+        try:
+            self.client.send(coin_info_encoded)
+        except socket.error as e:
+            print(e)
+
 
     def close(self):
         self.client.close()

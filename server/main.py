@@ -20,9 +20,6 @@ s.bind((socket.gethostname(), PORT))
 s.listen(MAX_PLAYERS*MAX_MATCHES)
 
 matches = {}
-players = {}
-
-
 
 def generate_id(_list: dict, _max: int):
     """
@@ -72,8 +69,13 @@ def handle_messages(match_id: str, player_id: int):
 
         if msg_json['object'] == 'score':
             if len([0 for p in players if players[p]['health'] <= 0]) >= MAX_PLAYERS - 1:
-                print('hel')
+                print(f'Game {match_id} has ended')
                 matches[match_id]['ended'] = True
+            time.sleep(.1)
+
+        if msg_json['object'] == 'coin':
+            index = msg_json['id']
+            matches[match_id]['coins'][index] = None
 
         # Tell other players about player moving
         for p_id in players:
@@ -240,8 +242,7 @@ def main():
                         "joined": True,
                         "left": False
                     }).encode("utf8"))
-                    time.sleep(1)
-                    print('wake up')
+                    time.sleep(.1)
                 except OSError:
                     pass
 

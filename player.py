@@ -37,12 +37,12 @@ class Player(Entity):
             scale=self.healthbar_size
         )
         
-        self.health = 100
+        self.health = 20
         self.death_shown = False
         text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
         
     def update(self):
-        self.healthbar.scale_x = self.healthbar_size[0]*self.health/100
+        self.healthbar.scale_x = self.healthbar_size[0]*self.health/20
         if self.health > 0:
             angle = self.rotation_z
             increaseX = 0

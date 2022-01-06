@@ -34,7 +34,7 @@ app = Ursina()
 can_continue = True
 
 while can_continue:
-	n = Network(socket.gethostname(), 8000, {'username': 'manh', 'health': 100, 'damage': 1, 'ship': 1})
+	n = Network(socket.gethostname(), 8000, {'username': 'manh', 'health': 20, 'damage': 1, 'ship': 1})
 	n.settimeout(5)
     
 	can_continue = False
@@ -60,102 +60,100 @@ def protocol():
 
     while True:
         try:
-            info = n.receive_info()
+            infor = n.receive_info()
         except Exception as e:
             print(e)
             continue
 
-        if not info:
+        if not infor:
             print("Server has stopped! Exiting...")
             sys.exit()
 
-        if type(info) == list:
-            for i in info:
-                enemy_id = i["id"]
-                if i["joined"]:
-                    new_enemy = Enemy(i)
+        for info in infor:
+            if info["object"] == "player":
+                enemy_id = info["id"]
+
+                if info["joined"]:
+                    new_enemy = Enemy(info)
                     enemies.append(new_enemy)
+                    continue
 
-        elif info["object"] == "player":
-            enemy_id = info["id"]
+                enemy = None
 
-            if info["joined"]:
-                new_enemy = Enemy(info)
-                enemies.append(new_enemy)
-                continue
-
-            enemy = None
-
-            for e in enemies:
-                if e.id == enemy_id:
-                    enemy = e
-                    break
-
-            if not enemy:
-                continue
-
-            if info["left"]:
-                enemies.remove(enemy)
-                destroy(enemy)
-                continue
-
-            enemy.world_position = Vec2(*info["position"])
-            enemy.rotation_z = info["direction"]
-
-        elif info["object"] == "cannonball":
-        	b_pos = Vec2(*info["position"])
-        	b_rediffX = info["rediffX"]
-        	b_rediffY = info["rediffY"]
-        	b_damage = info["damage"]
-        	b_enemy_id = info['player_id']
-        	for e in enemies:
-        		if e.id == b_enemy_id:
-        			enemy = e
-
-        	new_bullet = CannonBall(player, b_pos, b_rediffX, b_rediffY, b_damage, n, enemy=enemy)
-
-
-        elif info["object"] == "health_update":
-            enemy_id = info["id"]
-
-            enemy = None
-
-            if enemy_id == n.id:
-                enemy = player
-            else:
                 for e in enemies:
                     if e.id == enemy_id:
                         enemy = e
                         break
 
-            if not enemy:
-                continue
+                if not enemy:
+                    continue
 
-            enemy.health = info["health"]
+                if info["left"]:
+                    enemies.remove(enemy)
+                    destroy(enemy)
+                    continue
 
-        elif info['object'] == 'score':
-            print('scoreeeeeeeee')
-            enemy_id = info["id"]
+                enemy.world_position = Vec2(*info["position"])
+                enemy.rotation_z = info["direction"]
 
-            enemy = None
+            elif info["object"] == "cannonball":
+            	b_pos = Vec2(*info["position"])
+            	b_rediffX = info["rediffX"]
+            	b_rediffY = info["rediffY"]
+            	b_damage = info["damage"]
+            	b_enemy_id = info['player_id']
+            	for e in enemies:
+            		if e.id == b_enemy_id:
+            			enemy = e
 
-            if enemy_id == n.id:
-                enemy = player
-            else:
-                for e in enemies:
-                    if e.id == enemy_id:
-                        enemy = e
-                        break
-
-            if not enemy:
-                continue
-
-            scores.append((info['id'], info['score']))
+            	new_bullet = CannonBall(player, b_pos, b_rediffX, b_rediffY, b_damage, n, enemy=enemy)
 
 
-        elif info['object'] == 'end_game':
-            scores.append(('player', player.score))
-            print(scores)
+            elif info["object"] == "health_update":
+                enemy_id = info["id"]
+
+                enemy = None
+
+                if enemy_id == n.id:
+                    enemy = player
+                else:
+                    for e in enemies:
+                        if e.id == enemy_id:
+                            enemy = e
+                            break
+
+                if not enemy:
+                    continue
+
+                enemy.health = info["health"]
+
+            elif info['object'] == 'coin':
+                coins_pos[info['id']] = None
+
+            elif info['object'] == 'score':
+                enemy_id = info["id"]
+
+                enemy = None
+
+                if enemy_id == n.id:
+                    enemy = player
+                else:
+                    for e in enemies:
+                        if e.id == enemy_id:
+                            enemy = e
+                            break
+
+                if not enemy:
+                    continue
+
+                scores.append((info['id'], info['score']))
+
+
+            elif info['object'] == 'end_game':
+                if player.death_shown:
+                    player.health = -1
+                    scores.append(('player', player.score))
+                    print(scores)
 
 def update():
 
@@ -181,6 +179,8 @@ prev_dir = player.world_rotation_z
 background = Sea()
 
 plant = Plant()
+coins_pos = n.coinPosition
+print(coins_pos)
 coin = Coin()
 minimap = MiniMap(player, background)
 
