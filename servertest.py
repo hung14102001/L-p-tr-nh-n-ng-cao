@@ -2,6 +2,7 @@ from network import Network
 import socket
 import threading
 import os
+import time
 
 from re import A, escape
 from ursina import *
@@ -106,7 +107,7 @@ def protocol():
             		if e.id == b_enemy_id:
             			enemy = e
 
-            	new_bullet = CannonBall(player, b_pos, b_rediffX, b_rediffY, b_damage, n, enemy=enemy)
+            	CannonBall(player, b_pos, b_rediffX, b_rediffY, b_damage, n, enemy=enemy)
 
 
             elif info["object"] == "health_update":
@@ -127,9 +128,6 @@ def protocol():
 
                 enemy.health = info["health"]
 
-            elif info['object'] == 'coin':
-                coins_pos[info['id']] = None
-
             elif info['object'] == 'score':
                 enemy_id = info["id"]
 
@@ -148,12 +146,15 @@ def protocol():
 
                 scores.append((info['id'], info['score']))
 
+            elif info['object'] == 'coin_update':
+                coin.destroy_coin(info['coin_id'])
 
             elif info['object'] == 'end_game':
-                if player.death_shown:
-                    player.health = -1
+                if not player.game_ended:
+                    player.game_ended = True
                     scores.append(('player', player.score))
                     print(scores)
+                n.close()
 
 def update():
 
@@ -166,12 +167,15 @@ def update():
         prev_pos = player.world_position
         prev_dir = player.world_rotation_z
 
-    elif not player.death_shown:
+    elif not player.game_ended:
         n.send_player(player)
         n.send_score(player)
-        player.death_shown = True
+        player.game_ended = True
+        scores.append(('player', player.score))
+        print(scores)
 
-player = Player(Vec2(*(n.getInitPosition())))
+coin = Coin(n.coinPosition)
+player = Player(Vec2(*(n.getInitPosition())), n, coin)
 
 prev_pos = player.world_position
 prev_dir = player.world_rotation_z
@@ -180,8 +184,6 @@ background = Sea()
 
 plant = Plant()
 coins_pos = n.coinPosition
-print(coins_pos)
-coin = Coin()
 minimap = MiniMap(player, background)
 
 msg_thread = threading.Thread(target=protocol, daemon=True)

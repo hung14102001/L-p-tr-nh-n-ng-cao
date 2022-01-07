@@ -1,8 +1,9 @@
 import os
 from ursina import *
 import time
+from sea import CoinPart, Coin
 class Player(Entity):
-    def __init__(self, position):
+    def __init__(self, position, network, coins):
 
         super().__init__(
             model='cube',
@@ -19,7 +20,8 @@ class Player(Entity):
         self.speed = 0.15
         self.reload = time.time()
         self.level = 1
-        self.team = 1
+        self.network = network
+        self.coins = coins
         self.healthbar_pos = Vec2(0, -0.1)
         self.healthbar_size = Vec2(0.2, 0.02)
         self.healthbar_bg = Entity(
@@ -38,7 +40,7 @@ class Player(Entity):
         )
         
         self.health = 20
-        self.death_shown = False
+        self.game_ended = False
         text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
         
     def update(self):
@@ -92,7 +94,15 @@ class Player(Entity):
 
 
             hitinfo = self.intersects()
-            if hitinfo.hit:          
+            if hitinfo.hit:
+                if isinstance(hitinfo.entity, CoinPart):
+                    if not self.game_ended:
+                        self.score += 1
+                    index = hitinfo.entity.index
+                    self.coins.destroy_coin(index)
+
+                    self.network.send_coin(index)
+
                 x = hitinfo.point.x
                 y = hitinfo.point.y
                 if x == .5:

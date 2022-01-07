@@ -13,6 +13,7 @@ PORT = 8000
 MAX_MATCHES = 3
 MAX_PLAYERS = 3
 MSG_SIZE = 2048
+COIN_AMOUNT = 10
 
 # Setup server socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,11 +72,10 @@ def handle_messages(match_id: str, player_id: int):
             if len([0 for p in players if players[p]['health'] <= 0]) >= MAX_PLAYERS - 1:
                 print(f'Game {match_id} has ended')
                 matches[match_id]['ended'] = True
-            time.sleep(.1)
 
-        if msg_json['object'] == 'coin':
-            index = msg_json['id']
-            matches[match_id]['coins'][index] = None
+        if msg_json['object'] == 'coin_update':
+            index = msg_json['coin_id']
+            del matches[match_id]['coins'][index]
 
         # Tell other players about player moving
         for p_id in players:
@@ -84,17 +84,17 @@ def handle_messages(match_id: str, player_id: int):
                 player_info = players[p_id]
                 player_conn: socket.socket = player_info["socket"]
 
-                if match_id not in matches or matches[match_id]['ended']:
-                    player_conn.send(json.dumps({'object': 'end_game'}).encode('utf8'))
 
                 if p_id != player_id:
                     try:
                         player_conn.sendall(msg_decoded.encode("utf8"))
                     except OSError:
                         pass
+                if match_id not in matches or matches[match_id]['ended']:
+                    player_conn.send(json.dumps({'object': 'end_game'}).encode('utf8'))
 
-        if match_id not in matches or matches[match_id]['ended']:
-            break
+        # if match_id not in matches or matches[match_id]['ended']:
+        #     break
 
 
     players[player_id]['left'] = True
@@ -187,9 +187,10 @@ def main():
 
         # Add new player to players list, effectively allowing it to receive messages from other players
         if new_match_id not in matches:
-            coin_x = [random.randint(-19, 19) for i in range(10)]
-            coin_y = [random.randint(-19, 19) for i in range(10)]
+            coin_x = [random.randint(-19, 19) for i in range(COIN_AMOUNT)]
+            coin_y = [random.randint(-19, 19) for i in range(COIN_AMOUNT)]
             coins_pos = [*zip(coin_x, coin_y)]
+            coins_pos = {str(i) : coins_pos[i] for i in range(COIN_AMOUNT)}
 
             matches[new_match_id] = {
                 'ended': False,

@@ -52,7 +52,7 @@ class Network:
 
             msg = self.client.recv(self.recv_size)
         except socket.error as e:
-            print('Extraaaa\n\n\n', e)
+            print(e)
 
         if not msg:
             return None
@@ -126,8 +126,8 @@ class Network:
 
     def send_coin(self, coin_id):
         coin = {
-            'object': 'coin',
-            'id': coin_id,
+            'object': 'coin_update',
+            'coin_id': coin_id,
         }
         coin_info_encoded = json.dumps(coin).encode('utf8')
 

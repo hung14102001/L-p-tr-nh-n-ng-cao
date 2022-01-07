@@ -34,7 +34,11 @@ class Enemy(Entity):
         self.id = info['id']
 
     def update(self):
-        if self.health <= 0:
-            pass
-        else:
+        try:
+            while self.health == None:
+                continue
+            if self.health <= 0:
+                pass
             self.healthbar.scale_x = self.health / self.maxHealth * 1.5
+        except AttributeError as e:
+            print(e)
