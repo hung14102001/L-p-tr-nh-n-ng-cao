@@ -7,7 +7,6 @@ class Player(Entity):
         super().__init__(
             model='cube',
             collider = 'box',
-            texture=os.path.join("Ships", "ship_4.png"),
             x=position_x,
             y=position_y,
             score = 0,
@@ -15,7 +14,7 @@ class Player(Entity):
             z=0,
             scale_x=1,
             scale_y=2,
-            # text = Text(text="Score: " + str(score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0)),
+            enabled = False,
         )
         self.speed = 0.15
         self.reload = time.time()
@@ -24,22 +23,23 @@ class Player(Entity):
         self.healthbar_pos = Vec2(0, -0.1)
         self.healthbar_size = Vec2(0.2, 0.02)
         self.healthbar_bg = Entity(
-            parent=camera.ui,
+            parent=self,
             model="quad",
             color= color.rgb(255, 0, 0),
             position=self.healthbar_pos,
-            scale=self.healthbar_size
+            scale=self.healthbar_size,
+           
         )
         self.healthbar = Entity(
-            parent=camera.ui,
+            parent=self,
             model="quad",
             color=color.rgb(0, 255, 0),
             position=self.healthbar_pos,
-            scale=self.healthbar_size
+            scale=self.healthbar_size,
         )
         
         self.health = 100
-        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0), visible=False)
         
     def update(self):
         angle = self.rotation_z
@@ -103,4 +103,6 @@ class Player(Entity):
             
         self.x = self.x + increaseX - decreaseX
         self.y = self.y + increaseY - decreaseY
+
+        
             

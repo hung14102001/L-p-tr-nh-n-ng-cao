@@ -7,7 +7,8 @@ class MiniMap(Entity):
             parent=camera.ui,
             model="quad",
             position=Vec2(0.74, 0.35),
-            color=color.rgb(161, 234, 255)
+            color=color.rgb(161, 234, 255),
+            enabled=False
         )
 
         self.player = player
@@ -110,7 +111,5 @@ class MiniMap(Entity):
         )
     
     def update(self):
-        self.x = self.player.x/40
-        self.y = self.player.y/40
-        
-    
+        self.playerRep.x = self.player.x/40
+        self.playerRep.y = self.player.y/40

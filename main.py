@@ -5,7 +5,6 @@ from random import randint
 from ursina.camera import Camera
 from menu import MainMenu
 
-
 # display the background
 app = Ursina()
 
@@ -19,6 +18,8 @@ window.fullscreen = False               # Do not go Fullscreen
 window.exit_button.visible = False
 window.fps_counter.enabled = False
 
+
 main_menu = MainMenu()
+
 
 app.run()
