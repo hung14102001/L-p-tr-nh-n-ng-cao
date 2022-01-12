@@ -39,30 +39,30 @@ class Player(Entity):
         self.reload = time.time()
         self.level = 1
         self.team = 1
-        self.healthbar_pos = Vec2(0, -0.1)
-        self.healthbar_size = Vec2(0.2, 0.02)
-        self.healthbar_bg = Entity(
-            parent=camera.ui,
-            model="quad",
-            color= color.rgb(255, 0, 0),
-            position=self.healthbar_pos,
-            scale=self.healthbar_size
-        )
-        self.healthbar = Entity(
-            parent=camera.ui,
-            model="quad",
-            color=color.rgb(0, 255, 0),
-            position=self.healthbar_pos,
-            scale=self.healthbar_size
-        )
+        # self.healthbar_pos = Vec2(0, -0.1)
+        # self.healthbar_size = Vec2(0.2, 0.02)
+        # self.healthbar_bg = Entity(
+        #     parent=camera.ui,
+        #     model="quad",
+        #     color= color.rgb(255, 0, 0),
+        #     position=self.healthbar_pos,
+        #     scale=self.healthbar_size
+        # )
+        # self.healthbar = Entity(
+        #     parent=camera.ui,
+        #     model="quad",
+        #     color=color.rgb(0, 255, 0),
+        #     position=self.healthbar_pos,
+        #     scale=self.healthbar_size
+        # )
         
         self.health = 100
-        self.text = Text(
-            text="Score: " + str(self.score), 
-            color=color.rgb(0,0,0), 
-            scale = 2.5, 
-            position=(-0.8,0.5,0)
-        )
+        # self.text = Text(
+        #     text="Score: " + str(self.score), 
+        #     color=color.rgb(0,0,0), 
+        #     scale = 2.5, 
+        #     position=(-0.8,0.5,0)
+        # )
 
         fire = Animation(
             'kenney_piratePack/PNG/Default size/Effects/fire',
@@ -169,7 +169,6 @@ class Player(Entity):
                 self.health -= time.dt*5
 
         if self.health > 0:
-            self.healthbar.scale_x = self.healthbar_size.x*self.health/100 
             if self.health < 90:
                 for e, p in zip(self.anim, self.animPos):
                     e.visible=True
@@ -178,7 +177,7 @@ class Player(Entity):
             else:
                 self.anim[0].visible=False
 
-        self.text.text="Score: " + str(self.score)
+        # self.text.text="Score: " + str(self.score)
         self.x = self.x + increaseX - decreaseX
         self.y = self.y + increaseY - decreaseY
             

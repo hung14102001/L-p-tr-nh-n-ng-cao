@@ -6,7 +6,6 @@ import threading
 
 from ursina import collider    
 
-# self.collider = BoxCollider(self, size=Vec3(1, 2, 1))
 
 class SeaPart(ursina.Entity):
     def __init__(self, position):
@@ -188,6 +187,4 @@ class Sea:
         island = Island4x4(5.5,-5.5)
         island = Island4x4(5.5,8.5)
 
-        # đá 
-        # island = IslandPart(ursina.Vec3(0,0,0), self.tiles[0])
         Restrictor()
