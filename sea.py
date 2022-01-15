@@ -1,9 +1,11 @@
 import os
 from ursina import *
 from random import randint
-import time  
+import time
+import threading
 
-# self.collider = BoxCollider(self, size=Vec3(1, 2, 1))
+from ursina import collider    
+
 
 class SeaPart(Entity):
     def __init__(self, parent,position):
@@ -80,23 +82,19 @@ class CoinPart(Entity):
         super().__init__(
             position=position,
             scale=1,
-            model="quad",
+            model='quad',
             texture=img,
-            collider="box"
+            collider='quad',
         )
-    def update(self):
-        hitinfo = self.intersects()
-        if hitinfo.hit:
-            destroy(self)
-            # self.player.score += 1
-class Coin(Entity):
+        
+class Coin():
     coin = os.path.join("Coins", "coin.png")
     def __init__(self):
+        self.parts = []
         for x in range(0,50):
             px = randint(-20, 20)
             py = randint(-20, 20)
-            part = CoinPart(Vec3(px, py, 0), self.coin)
-    # text = Text(text="Score: " +str(score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
     
 class Plant(Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
@@ -113,8 +111,21 @@ class Plant(Entity):
                 py = randint(-20, 20)
                 part = PlantPart(Vec3(px+i, py, 0), self.tiles[87+i])
 
-class Restrictor(Entity):
-    def __init__(self,parent):
+class Restrictor(ursina.Entity):
+    __instance = None
+    @staticmethod 
+    def getInstance():
+        """ Static access method. """
+        if Restrictor.__instance == None:
+            Restrictor()
+        return Restrictor.__instance
+
+
+    def __init__(self):
+        if Restrictor.__instance != None:
+            return self
+        else:
+            Restrictor.__instance = self
         super().__init__(
             parent=parent,
             model=Circle(resolution=50, mode='line'),
