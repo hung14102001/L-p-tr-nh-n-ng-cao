@@ -77,24 +77,28 @@ class PlantPart(Entity):
             # collider="box"
         )
 
-class CoinPart(Entity):
-    def __init__(self,position,img):
+class CoinPart(ursina.Entity):
+    def __init__(self, index, position):
+        coin = os.path.join("Coins", "coin.png")
+
         super().__init__(
             position=position,
             scale=1,
-            model='quad',
-            texture=img,
-            collider='quad',
+            model="quad",
+            texture=coin,
+            collider="box"
         )
+        self.index = index
+class Coin:
+    def __init__(self, position_list):
+        self.coin_list = {}
+        for i in position_list:
+            self.coin_list[i] = CoinPart(i, ursina.Vec2(*position_list[i]))
         
-class Coin():
-    coin = os.path.join("Coins", "coin.png")
-    def __init__(self):
-        self.parts = []
-        for x in range(0,50):
-            px = randint(-20, 20)
-            py = randint(-20, 20)
-            part = CoinPart(ursina.Vec3(px, py, 0), self.coin)
+    def destroy_coin(self, index):
+        coin = self.coin_list[index]
+        ursina.destroy(coin)
+        del self.coin_list[index]
     
 class Plant(Entity):
     tiles = [os.path.join("Tiles",f"tile_{x}") for x in range(0,96)]
@@ -133,6 +137,7 @@ class Restrictor(ursina.Entity):
             color=color.rgb(0,0,0),
             text = Text(text="Time: ", parent=parent, color=color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
+        self.time = time.time()
         self.countDown = time.time() + 5
         self.restricting = False
 
@@ -145,10 +150,12 @@ class Restrictor(ursina.Entity):
                 destroy(self)
 
             elif time.time() > self.countDown:
+                print(1, time.time() - self.time, self.scale_y)
                 self.countDown += 5
                 self.restricting = False
 
         elif time.time() > self.countDown:
+            print(0, time.time() - self.time, self.scale_y)
             self.countDown += 15
             self.restricting = True
 

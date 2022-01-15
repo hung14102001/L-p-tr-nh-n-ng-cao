@@ -38,6 +38,28 @@ class Player(Entity):
         self.speed = 0.15
         self.reload = time.time()
         self.level = 1
+        self.network = network
+        self.coins = coins
+        self.healthbar_pos = Vec2(0, -0.1)
+        self.healthbar_size = Vec2(0.2, 0.02)
+        self.healthbar_bg = Entity(
+            parent=camera.ui,
+            model="quad",
+            color= color.rgb(255, 0, 0),
+            position=self.healthbar_pos,
+            scale=self.healthbar_size
+        )
+        self.healthbar = Entity(
+            parent=camera.ui,
+            model="quad",
+            color=color.rgb(0, 255, 0),
+            position=self.healthbar_pos,
+            scale=self.healthbar_size
+        )
+        
+        self.health = 20
+        self.game_ended = False
+        text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
         self.team = 1
         # self.healthbar_pos = Vec2(0, -0.1)
         # self.healthbar_size = Vec2(0.2, 0.02)
@@ -95,91 +117,76 @@ class Player(Entity):
         self.animPos = [[.5, 0], [-.1, .2], [.2, 0]]
         
     def update(self):
-        angle = self.rotation_z
-        increaseX = 0
-        increaseY = 0
-        decreaseX = 0
-        decreaseY = 0
-        if held_keys['up arrow'] or held_keys['w']:
-            increaseY = self.speed
-            angle = 180
-    
-        if held_keys['down arrow'] or held_keys['s']:
-            decreaseY = self.speed
-            angle = 0
-        if held_keys['left arrow'] or held_keys['a'] :
-            decreaseX = self.speed
-            angle = 90
+        self.healthbar.scale_x = self.healthbar_size[0]*self.health/20
+        if self.health > 0:
+            angle = self.rotation_z
+            increaseX = 0
+            increaseY = 0
+            decreaseX = 0
+            decreaseY = 0
             if held_keys['up arrow'] or held_keys['w']:
-                angle = 135
-                decreaseX = self.speed /1.414
-                increaseY = self.speed /1.414
-            elif held_keys['down arrow'] or held_keys['s']:
-                angle = 45
-                decreaseX = self.speed /1.414
-                decreaseY = self.speed /1.414
+                increaseY = self.speed
+                angle = 180
+        
+            if held_keys['down arrow'] or held_keys['s']:
+                decreaseY = self.speed
+                angle = 0
+            if held_keys['left arrow'] or held_keys['a'] :
+                decreaseX = self.speed
+                angle = 90
+                if held_keys['up arrow'] or held_keys['w']:
+                    angle = 135
+                    decreaseX = self.speed /1.414
+                    increaseY = self.speed /1.414
+                elif held_keys['down arrow'] or held_keys['s']:
+                    angle = 45
+                    decreaseX = self.speed /1.414
+                    decreaseY = self.speed /1.414
 
-        if held_keys['right arrow'] or held_keys['d'] :
-            increaseX = self.speed
-            angle = -90
-            if held_keys['up arrow'] or held_keys['w']:
-                angle = -135
-                increaseX = self.speed /1.414
-                increaseY = self.speed /1.414
+            if held_keys['right arrow'] or held_keys['d'] :
+                increaseX = self.speed
+                angle = -90
+                if held_keys['up arrow'] or held_keys['w']:
+                    angle = -135
+                    increaseX = self.speed /1.414
+                    increaseY = self.speed /1.414
 
-            elif held_keys['down arrow'] or held_keys['s']:
-                angle = -45
-                increaseX = self.speed /1.414
-                decreaseY = self.speed /1.414
-        if held_keys['g']:
+                elif held_keys['down arrow'] or held_keys['s']:
+                    angle = -45
+                    increaseX = self.speed /1.414
+                    decreaseY = self.speed /1.414
+            if held_keys['g']:
+                camera.x = self.x
+                camera.y = self.y
+                camera.z = -50
+            self.rotation_z = angle
+            
             camera.x = self.x
             camera.y = self.y
-            camera.z = -50
-        self.rotation_z = angle
-        
-        camera.x = self.x
-        camera.y = self.y
-        camera.z = -30
+            camera.z = -30
 
-        hitinfo = self.intersects()
-        if hitinfo:
-            if isinstance(hitinfo.entity, CoinPart):
-                destroy(hitinfo.entity)
-                self.score += 1
 
-            x = hitinfo.point.x
-            y = hitinfo.point.y
-            if x == .5:
-                decreaseX = 0
-            if x == -.5:
-                increaseX = 0
-            if y == .5:
-                decreaseY = 0
-            if y == -.5:
-                increaseY = 0
+            hitinfo = self.intersects()
+            if hitinfo.hit:
+                if isinstance(hitinfo.entity, CoinPart):
+                    if not self.game_ended:
+                        self.score += 1
+                    index = hitinfo.entity.index
+                    self.coins.destroy_coin(index)
 
-        try:
-            restrictor = Restrictor.getInstance()
-            if restrictor:
-                self.restrictorRadius = restrictor.scale_x/2
-        except:
-            pass
+                    self.network.send_coin(index)
 
-        if self.x**2 + self.y**2 > self.restrictorRadius**2:
-                self.health -= time.dt*5
-
-        if self.health > 0:
-            if self.health < 90:
-                for e, p in zip(self.anim, self.animPos):
-                    e.visible=True
-                    e.x = self.x + p[0]
-                    e.y = self.y + p[1]
-            else:
-                self.anim[0].visible=False
-
-        # self.text.text="Score: " + str(self.score)
-        self.x = self.x + increaseX - decreaseX
-        self.y = self.y + increaseY - decreaseY
-
-        
+                x = hitinfo.point.x
+                y = hitinfo.point.y
+                if x == .5:
+                    decreaseX = 0
+                if x == -.5:
+                    increaseX = 0
+                if y == .5:
+                    decreaseY = 0
+                if y == -.5:
+                    increaseY = 0
+                
+            self.x = self.x + increaseX - decreaseX
+            self.y = self.y + increaseY - decreaseY
             
