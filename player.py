@@ -26,13 +26,14 @@ class Player(Entity):
         super().__init__(
             model='cube',
             collider = 'box',
-            texture=os.path.join("Ships", "ship_4.png"),
-            position=position,
+            x=position_x,
+            y=position_y,
             score = 0,
             rotation_z = 0,
             z=0,
             scale_x=1,
             scale_y=2,
+            enabled = False,
         )
         self.speed = 0.15
         self.reload = time.time()
