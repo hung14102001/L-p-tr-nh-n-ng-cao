@@ -33,39 +33,12 @@ class Player(Entity):
             z=0,
             scale_x=1,
             scale_y=2,
-<<<<<<< HEAD
             enabled = False,
-=======
->>>>>>> main
         )
         self.speed = 0.15
         self.reload = time.time()
         self.level = 1
         self.team = 1
-<<<<<<< HEAD
-        self.healthbar_pos = Vec2(0, -0.1)
-        self.healthbar_size = Vec2(0.2, 0.02)
-        self.healthbar_bg = Entity(
-            parent=camera.ui,
-            model="quad",
-            color= color.rgb(255, 0, 0),
-            position=self.healthbar_pos,
-            scale=self.healthbar_size,
-            enabled=False
-           
-        )
-        self.healthbar = Entity(
-            parent=camera.ui,
-            model="quad",
-            color=color.rgb(0, 255, 0),
-            position=self.healthbar_pos,
-            scale=self.healthbar_size,
-            enabled = False
-        )
-        
-        self.health = 100
-        self.text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2, position=(-0.82,0.46), visible=False)
-=======
         # self.healthbar_pos = Vec2(0, -0.1)
         # self.healthbar_size = Vec2(0.2, 0.02)
         # self.healthbar_bg = Entity(
@@ -120,7 +93,6 @@ class Player(Entity):
         )
         self.anim = [fire, fire2, fire3]
         self.animPos = [[.5, 0], [-.1, .2], [.2, 0]]
->>>>>>> main
         
     def update(self):
         angle = self.rotation_z
