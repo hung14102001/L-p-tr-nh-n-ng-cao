@@ -1,9 +1,27 @@
 import os
 from ursina import *
 import time
-from sea import CoinPart, Coin
+import random
+from sea import Restrictor, CoinPart
+
+
 class Player(Entity):
-    def __init__(self, position, network, coins):
+    __instance = None
+    @staticmethod 
+    def getInstance():
+      """ Static access method. """
+      if Player.__instance == None:
+         Player(random.randint(10, 19), random.randint(10, 19))
+      return Player.__instance
+
+    def __init__(self, position_x, position_y):
+        """ Virtually private constructor. """
+        if Player.__instance != None:
+            self.x = position_x
+            self.y = position_y
+            return self
+        else:
+            Player.__instance = self
 
         super().__init__(
             model='cube',
@@ -15,7 +33,6 @@ class Player(Entity):
             z=0,
             scale_x=1,
             scale_y=2,
-            # text = Text(text="Score: " + str(score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0)),
         )
         self.speed = 0.15
         self.reload = time.time()
@@ -42,6 +59,61 @@ class Player(Entity):
         self.health = 20
         self.game_ended = False
         text = Text(text="Score: " +str(self.score), color=color.rgb(0,0,0), scale = 2.5, position=(-0.8,0.5,0))
+        self.team = 1
+        # self.healthbar_pos = Vec2(0, -0.1)
+        # self.healthbar_size = Vec2(0.2, 0.02)
+        # self.healthbar_bg = Entity(
+        #     parent=camera.ui,
+        #     model="quad",
+        #     color= color.rgb(255, 0, 0),
+        #     position=self.healthbar_pos,
+        #     scale=self.healthbar_size
+        # )
+        # self.healthbar = Entity(
+        #     parent=camera.ui,
+        #     model="quad",
+        #     color=color.rgb(0, 255, 0),
+        #     position=self.healthbar_pos,
+        #     scale=self.healthbar_size
+        # )
+        
+        self.health = 100
+        # self.text = Text(
+        #     text="Score: " + str(self.score), 
+        #     color=color.rgb(0,0,0), 
+        #     scale = 2.5, 
+        #     position=(-0.8,0.5,0)
+        # )
+
+        fire = Animation(
+            'kenney_piratePack/PNG/Default size/Effects/fire',
+            fps=4,
+            loop=True,
+            autoplay=True,
+            visible=False,
+            z=-1
+        )
+        fire2 = Animation(
+            'kenney_piratePack/PNG/Default size/Effects/fire',
+            scale=(.2,.4),
+            # rotation_y=180,
+            fps=4,
+            loop=True,
+            autoplay=True,
+            visible=False,
+            z=-1
+        )
+        fire3 = Animation(
+            'kenney_piratePack/PNG/Default size/Effects/fire',
+            scale=(.4,.6),
+            fps=4,
+            loop=True,
+            autoplay=True,
+            visible=False,
+            z=-1
+        )
+        self.anim = [fire, fire2, fire3]
+        self.animPos = [[.5, 0], [-.1, .2], [.2, 0]]
         
     def update(self):
         self.healthbar.scale_x = self.healthbar_size[0]*self.health/20

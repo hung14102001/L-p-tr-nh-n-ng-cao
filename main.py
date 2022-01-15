@@ -7,6 +7,7 @@ from cannonball import CannonBall
 from player import Player
 from sea import Sea, Plant, Coin
 from minimap import MiniMap
+from gameUI import gameUI
 # from network import Network
 from ursina.camera import Camera
 from enemy import Enemy
@@ -28,12 +29,12 @@ def input(key):
 
 # display the background
 app = Ursina()
-player = Player(-15,-15)
+player = Player(13, 13)
 background = Sea()
 
 plant = Plant()
 coin = Coin()
-minimap = MiniMap(player, background)
+gameUI = gameUI()
 # camera.z = -100
 Enemy(Vec2(5,5), '1111', '234', './Ships/ship_4.png')
 

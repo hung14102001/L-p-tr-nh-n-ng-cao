@@ -2,10 +2,10 @@ import os
 import ursina
 from random import randint
 import time
+import threading
 
 from ursina import collider    
 
-# self.collider = BoxCollider(self, size=Vec3(1, 2, 1))
 
 class SeaPart(ursina.Entity):
     def __init__(self, position):
@@ -109,12 +109,24 @@ class Plant:
                 part = PlantPart(ursina.Vec3(px+i, py, 0), self.tiles[87+i])
 
 class Restrictor(ursina.Entity):
+    __instance = None
+    @staticmethod 
+    def getInstance():
+        """ Static access method. """
+        if Restrictor.__instance == None:
+            Restrictor()
+        return Restrictor.__instance
+
+
     def __init__(self):
+        if Restrictor.__instance != None:
+            return self
+        else:
+            Restrictor.__instance = self
         super().__init__(
             model=ursina.Circle(resolution=50, mode='line'),
             scale=(40*2**.5,40*2**.5),
             color=ursina.color.rgb(0,0,0),
-            text = ursina.Text(text="Time: ", color=ursina.color.rgb(0,0,0), scale = 2.5, position=(.3,0.5,0)),
         )
         self.time = time.time()
         self.countDown = time.time() + 5
@@ -181,6 +193,4 @@ class Sea:
         island = Island4x4(5.5,-5.5)
         island = Island4x4(5.5,8.5)
 
-        # đá 
-        # island = IslandPart(ursina.Vec3(0,0,0), self.tiles[0])
         Restrictor()
